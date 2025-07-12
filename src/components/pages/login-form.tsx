@@ -14,9 +14,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { signIn } from "@/auth";
 export default function LoginPage() {
-  const login = (event: React.FormEvent<HTMLFormElement>) => {
-    signIn()
-    // Handle form submission logic here
+  const login = (event: React.FormEvent<HTMLFormElement>) => {  
+    event.preventDefault()
     return (
       <Alert>
         <AlertTitle>Success! Your changes have been saved</AlertTitle>
