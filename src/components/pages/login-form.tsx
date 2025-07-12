@@ -12,9 +12,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import { signIn } from "@/auth";
 export default function LoginPage() {
   const login = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+    signIn()
     // Handle form submission logic here
     return (
       <Alert>
@@ -26,6 +27,8 @@ export default function LoginPage() {
     );
   };
 
+  
+
   return (
     <form
       className="flex w-[35rem] h-[30rem] rounded-xl forms-bg justify-center items-center max-w-md "
@@ -33,7 +36,7 @@ export default function LoginPage() {
     >
       <div className="flex w-96 flex-col gap-6 bg-transparent shadow-2xl">
         <Tabs defaultValue="Login">
-          <TabsList>
+          <TabsList className="indeterminate:">
             <TabsTrigger value="Login">Login</TabsTrigger>
             <TabsTrigger value="Register">Cadastre-se</TabsTrigger>
           </TabsList>
