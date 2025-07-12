@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 
 import { LOGIN_ROUTE } from "./api.routes";
 import AxiosInstance from "@/providers/axios-instance";
+import { User } from "@/shared/user";
 
 const authProvider = ProviderRequest(AxiosInstance({}).provider);
 
@@ -15,6 +16,14 @@ const login = async (document: string, password: string) => {
     redirect: false,
   });
 };
+
+const register = async ( user: User) => {
+  try { 
+    await authProvider.post("/auth/register", user);
+  } catch (error) {
+    return error
+  }
+}
 
 const authUser = async (document: string, password: string) => {
   try {
@@ -46,4 +55,4 @@ const logout = async () => {
   redirect(LOGIN_ROUTE);
 };
 
-export { login, logout, authUser };
+export { login, logout, authUser, register };

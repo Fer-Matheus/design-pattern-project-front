@@ -1,4 +1,4 @@
-import type { NextAuthConfig} from "next-auth";
+import type { NextAuthConfig } from "next-auth";
 
 export const authConfig = {
   session: {
@@ -16,12 +16,11 @@ export const authConfig = {
       return isAuthenticated;
     },
     async session({ session, token }) {
-      session.user.role = token.role;
-      return session;
+      return { ...session, ...token };
     },
     async jwt({ token, user }) {
       if (user) {
-        token.role = user.role;
+        token.name = user.name;
       }
       return token;
     },
