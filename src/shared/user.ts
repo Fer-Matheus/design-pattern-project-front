@@ -1,5 +1,5 @@
 export type User = {
-  username: string;
+  email: string;
   password: string;
   is_active: boolean;
   is_superuser: boolean;
