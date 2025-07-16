@@ -9,12 +9,16 @@ import { User } from "@/shared/user";
 
 const authProvider = ProviderRequest(AxiosInstance({}).provider);
 
-const login = async (document: string, password: string) => {
-  await signIn("credentials", {
-    username: document,
+const login = async (email: string, password: string) => {
+  try {
+    await signIn("credentials", {
+    username: email,
     password: password,
     redirect: false,
   });
+  } catch (error) {
+    throw error
+  }
 };
 
 const register = async ( user: User) => {
@@ -25,18 +29,18 @@ const register = async ( user: User) => {
   }
 }
 
-const authUser = async (document: string, password: string) => {
+const authUser = async (username: string, password: string) => {
   try {
-    await authProvider.post("/login", {
-      document,
-      password,
+    await authProvider.post("/auth/jwt/login",{
+      username,
+      password
     });
   } catch (e) {}
 
   return {
     id: 1,
     name: "test user",
-    email: document,
+    email: username,
     role: 1,
     password: password,
   };
