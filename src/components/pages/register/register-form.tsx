@@ -50,12 +50,8 @@ export default function RegisterForm() {
         last_name: lastName,
         user_type: role
       })
-
       router.refresh();
-
     } catch (error) {
-      alert("Um erro ocorreu");
-      console.error("Login failed:", error);
     }
   };
 

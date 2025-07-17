@@ -32,7 +32,7 @@ export default function LoginForm() {
         setCookie("access-token", response.access_token);
       }
 
-      router.push("/courses");
+      router.push("/");
     } catch (error) {
       alert("Usuário ou senha inválidos");
       console.error("Login failed:", error);
