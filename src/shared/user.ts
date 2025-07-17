@@ -1,3 +1,5 @@
+import { CourseServer } from "./course";
+
 export type User = {
   email: string;
   password: string;
@@ -8,3 +10,16 @@ export type User = {
   last_name: string;
   user_type: string;
 };
+
+export type UserLogin = {
+  username: string;
+  password: string;
+}
+export type UserLoginResponse = {
+  access_token: string;
+  token_type: string;
+}
+
+export type MyData = User & {
+  courses: CourseServer
+}

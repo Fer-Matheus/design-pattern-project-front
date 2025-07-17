@@ -6,6 +6,7 @@ interface AxiosInstanceProps {
 const AxiosInstance = ({ getToken }: AxiosInstanceProps) => {
   const provider = axios.create({
     baseURL: env.BACKEND_API_URL,
+    withCredentials: true
   });
 
   try {

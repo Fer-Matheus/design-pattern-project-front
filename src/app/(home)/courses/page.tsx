@@ -1,10 +1,14 @@
+"use client";
 import { CartProvider } from "@/providers/cart-provider";
 import CoursesDemo from "@/components/pages/courses-demo";
+import NavbarComponent from "@/components/base/navbar";
 
 export default function CoursesPage() {
   return (
-    <CartProvider>
-      <CoursesDemo />
-    </CartProvider>
+    <div>
+      <CartProvider>
+        <CoursesDemo />
+      </CartProvider>
+    </div>
   );
 }

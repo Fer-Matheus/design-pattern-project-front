@@ -1,31 +1,30 @@
-import NextAuth from "next-auth";
-import { authConfig } from "@/auth.config";
-import {
-  PUBLIC_ROUTES,
-  ROOT,
-  UNAUTHORIZED,
-} from "@/lib/routes";
+"use server";
+import { NextRequest, NextResponse } from "next/server";
 
-const { auth } = NextAuth(authConfig);
+export function middleware(request: NextRequest) {
+    const cookies = request.cookies.get("access-token");
 
-export default auth((req) => {
-  const { nextUrl, auth } = req;
 
-  const isAuthenticated = !!req.auth;
-  const isPublicRoute = PUBLIC_ROUTES.includes(nextUrl.pathname);
+    if (cookies?.value === "" && request.nextUrl.pathname === "/") {
+        return NextResponse.redirect(new URL("/login", request.url))
+    }
 
-  if (!isAuthenticated && !isPublicRoute)
-    return Response.redirect(new URL(ROOT, nextUrl));
+    if (request.nextUrl.pathname.startsWith("/courses")) {
+        if (cookies?.value === "") {
+            return NextResponse.redirect(new URL("/login", request.url));
+        }
+    }
 
-  if (
-    isAuthenticated &&
-    nextUrl.pathname == "/settings" &&
-    auth?.user?.role == 1
-  ) {
-    return Response.redirect(new URL(UNAUTHORIZED, nextUrl));
-  }
-});
+    if (request.nextUrl.pathname.startsWith("/checkout")) {
+        if (cookies?.value === "") {
+            return NextResponse.redirect(new URL("/login", request.url));
+        }
+    }
 
-export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
-};
+    if (request.nextUrl.pathname.startsWith("/login")) {
+        if (cookies?.value !== "") {
+            return NextResponse.redirect(new URL("/courses", request.url));
+        }
+    }
+
+}

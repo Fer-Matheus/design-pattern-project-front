@@ -31,18 +31,27 @@ export default function RegisterForm() {
   const [role, setRole] = useState("");
 
   const registerOnSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    
     try {
+
+      console.log(email)
+      console.log(password)
+      console.log(firstName)
+      console.log(lastName)
+      console.log(role)
       
       await register({
         email: email,
         password: password,
-        first_name: firstName,
-        last_name: lastName,
         is_active: true,
         is_superuser: false,
-        is_verified: false,
+        is_verified: true,
+        first_name: firstName,
+        last_name: lastName,
         user_type: role
       })
+
+      router.refresh();
 
     } catch (error) {
       alert("Um erro ocorreu");
@@ -126,7 +135,7 @@ export default function RegisterForm() {
                   <SelectItem key="Aluno" value="S">
                     Aluno
                   </SelectItem>
-                  <SelectItem key="Professor" value="T">
+                  <SelectItem key="Professor" value="I">
                     Professor
                   </SelectItem>
                 </SelectGroup>

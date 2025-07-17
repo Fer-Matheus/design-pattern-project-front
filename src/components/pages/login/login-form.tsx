@@ -11,6 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { login } from "@/service/auth";
+import { setCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -20,14 +21,18 @@ export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const onsubmit = async () => {
+  const onsubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     try {
-      await login(email, password)
-      
-      alert("Login realizado com sucesso");
+      const response = await login(email, password);
 
-      router.push("/")
+      console.log(response);
 
+      if (response) {
+        setCookie("access-token", response.access_token);
+      }
+
+      router.push("/courses");
     } catch (error) {
       alert("Usuário ou senha inválidos");
       console.error("Login failed:", error);

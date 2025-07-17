@@ -1,62 +1,60 @@
 "use server";
-import { auth, signIn, signOut } from "@/auth";
 import { ProviderRequest } from "@/providers/axios-requests";
-import { redirect } from "next/navigation";
-
-import { LOGIN_ROUTE } from "./api.routes";
 import AxiosInstance from "@/providers/axios-instance";
-import { User } from "@/shared/user";
+import { MyData, User, UserLogin, UserLoginResponse } from "@/shared/user";
+import { setCookie } from "cookies-next";
 
 const authProvider = ProviderRequest(AxiosInstance({}).provider);
 
-const login = async (email: string, password: string) => {
+const login = async (username: string, password: string) => {
   try {
-    await signIn("credentials", {
-    username: email,
-    password: password,
-    redirect: false,
-  });
+    const response = await authProvider.post<UserLogin, UserLoginResponse>(
+      "/auth/jwt/login",
+      {
+        username: username,
+        password: password
+      },
+      {
+        headers: {
+        'Content-Type': 'multipart/form-data',
+        }
+      }
+    );
+
+    setCookie("access-token", response.access_token)
+    setCookie("token-type", response.token_type)
+
+    return response;
+  }
+  catch (error){
+  }
+};
+
+const register = async (user: User) => {
+  try {
+    const response = await authProvider.post("/auth/register", user, {
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getUserData = async (jwt: string) => {
+  try {
+    const response = await authProvider.get<MyData>("/my-data/me", {
+      headers: {
+        Authorization: `Bearer ${jwt}`
+      },
+      withCredentials: true
+    })
+    return response
   } catch (error) {
     throw error
   }
-};
-
-const register = async ( user: User) => {
-  try { 
-    await authProvider.post("/auth/register", user);
-  } catch (error) {
-    return error
-  }
 }
 
-const authUser = async (username: string, password: string) => {
-  try {
-    await authProvider.post("/auth/jwt/login",{
-      username,
-      password
-    });
-  } catch (e) {}
-
-  return {
-    id: 1,
-    name: "test user",
-    email: username,
-    role: 1,
-    password: password,
-  };
-};
-
-const getUserToken = async () => {
-  const session = await auth();
-  if (!session?.user) {
-    throw new Error("User not found");
-  }
-  return session.user;
-};
-
-const logout = async () => {
-  await signOut({ redirect: false });
-  redirect(LOGIN_ROUTE);
-};
-
-export { login, logout, authUser, register };
+export { login, register, getUserData };

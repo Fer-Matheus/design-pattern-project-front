@@ -41,3 +41,11 @@ export interface CheckoutData {
   discount: number;
   finalTotal: number;
 }
+
+export type CourseServer = {
+  id: number;
+  title: string;
+  price: number;
+  is_active: boolean;
+  students_enrolled: number;
+};
