@@ -49,3 +49,11 @@ export type CourseServer = {
   is_active: boolean;
   students_enrolled: number;
 };
+
+export type IncommingCourses = {
+  id: number;
+  title: string;
+  price: number;
+  is_active: boolean;
+  students_enrolled: number;
+};
