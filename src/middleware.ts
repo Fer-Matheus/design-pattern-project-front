@@ -4,7 +4,6 @@ import { NextRequest, NextResponse } from "next/server";
 export function middleware(request: NextRequest) {
     const cookies = request.cookies.get("access-token");
 
-
     if (cookies?.value === "" && request.nextUrl.pathname === "/") {
         return NextResponse.redirect(new URL("/login", request.url))
     }
@@ -23,7 +22,7 @@ export function middleware(request: NextRequest) {
 
     if (request.nextUrl.pathname.startsWith("/login")) {
         if (cookies?.value !== "") {
-            return NextResponse.redirect(new URL("/courses", request.url));
+            return NextResponse.redirect(new URL("/", request.url));
         }
     }
 

@@ -1,4 +1,4 @@
-import { CourseServer } from "./course";
+import { Course, CourseServer, IncommingCourses } from "./course";
 
 export type User = {
   email: string;
@@ -14,6 +14,7 @@ export type User = {
 export type UserLogin = {
   username: string;
   password: string;
+  client_secret: string;
 }
 export type UserLoginResponse = {
   access_token: string;
@@ -21,5 +22,5 @@ export type UserLoginResponse = {
 }
 
 export type MyData = User & {
-  courses: CourseServer
+  courses_teaching: IncommingCourses[]
 }
