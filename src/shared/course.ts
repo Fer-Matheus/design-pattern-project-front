@@ -47,7 +47,7 @@ export type CourseServer = {
   title: string;
   price: number;
   is_active: boolean;
-  students_enrolled: number;
+  instructor_id: number;
 };
 
 export type IncommingCourses = {
@@ -56,4 +56,22 @@ export type IncommingCourses = {
   price: number;
   is_active: boolean;
   students_enrolled: number;
+};
+
+export type FullCourse = {
+  id: number;
+  title: string;
+  description: string;
+  price: number;
+  is_active: boolean;
+  instructor_id: number;
+  lessons: [
+    {
+      id: number;
+      title: string;
+      lesson_type: string;
+      order: number;
+      course_id: number;
+    },
+  ];
 };

@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -52,6 +51,8 @@ import {
 } from "@/components/pages/checkout/validation";
 import { mockCourses } from "@/shared/mock-courses";
 import { PaymentIcon, PaymentMethodBadge } from "@/components/ui/payment-icon";
+import { getTokenFromCookies } from "@/lib/getToken";
+import { buyCourse } from "@/service/auth";
 
 // Mock data para demonstração
 const paymentMethods: PaymentMethod[] = [
@@ -193,6 +194,14 @@ export default function CheckoutPageContent() {
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
       return;
+    }
+
+    const jwt = await getTokenFromCookies();
+    const courseId = localStorage.getItem("courseId")
+    try {
+      await buyCourse(jwt!, courseId!, "P", 50)
+    } catch (error) {
+      
     }
 
     setIsProcessing(true);
@@ -524,13 +533,13 @@ export default function CheckoutPageContent() {
                       <DialogDescription className="text-center py-4">
                         <div className="space-y-4">
                           <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                            <p className="text-green-800 font-semibold">
+                            <span className="text-green-800 font-semibold">
                               Parabéns! Sua compra foi processada com sucesso.
-                            </p>
-                            <p className="text-sm text-green-700 mt-2">
+                            </span>
+                            <span className="text-sm text-green-700 mt-2">
                               Você receberá um email com os detalhes da compra e
                               instruções para acessar seus cursos.
-                            </p>
+                            </span>
                           </div>
 
                           <div className="border rounded-lg p-4 bg-gray-50">

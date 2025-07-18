@@ -1,4 +1,5 @@
-import { Users, Book } from "lucide-react";
+"use client";
+import { Users, Book, ShoppingCart } from "lucide-react";
 import { Button } from "../ui/button";
 import { formatCurrency } from "../pages/checkout/validation";
 import {
@@ -8,14 +9,17 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
+import { useRouter } from "next/navigation";
 
 interface CourseProps {
+  user_type?: string;
   id: number;
   title: string;
   instructor?: string;
   description?: string;
   studentsCount?: number;
   price: number;
+  source: string;
 }
 
 export default function Course({
@@ -25,7 +29,13 @@ export default function Course({
   description,
   studentsCount,
   price,
+  user_type,
+  source,
 }: CourseProps) {
+  const router = useRouter();
+
+  console.log("User type: ", user_type);
+
   return (
     <Card key={id} className="hover:shadow-lg transition-shadow">
       <CardHeader>
@@ -56,10 +66,39 @@ export default function Course({
             </div>
           </div>
 
-          <Button className="w-full">
-            <Book className="w-4 h-4 mr-2" />
-            Acessar
-          </Button>
+          {source === "CP" ? (
+            <Button
+              className="w-full"
+              onClick={() => {
+                localStorage.setItem("courseId", id.toString());
+
+                if (user_type === "S") {
+                  router.push("/checkout");
+                } else {
+                  router.push("/");
+                }
+              }}
+            >
+              <ShoppingCart className="w-4 h-4 mr-2" />
+              Comprar
+            </Button>
+          ) : (
+            <Button
+              className="w-full"
+              onClick={() => {
+                localStorage.setItem("courseId", id.toString());
+
+                if (user_type === "S") {
+                  router.push("/course/1");
+                } else {
+                  router.push("/create-lesson");
+                }
+              }}
+            >
+              <Book className="w-4 h-4 mr-2" />
+              Acessar
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>

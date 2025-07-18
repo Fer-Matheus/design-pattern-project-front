@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import { useLesson } from "@/components/hooks/useLesson";
 import { Button } from "@/components/ui/button";
@@ -17,18 +16,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, CheckCircle, Upload, Video, BookOpen } from "lucide-react";
+import { createLesson } from "@/service/auth";
+import { getTokenFromCookies } from "@/lib/getToken";
 
 export default function CreateLessonForm() {
-  const {
-    createVideoLesson,
-    createModule,
-    createTextLesson,
-    createQuestionLesson,
-    setCurrentModule,
-    loading,
-  } = useLesson();
+  const { loading } = useLesson();
+  const id = localStorage.getItem("courseId");
 
-  const [courseId, setCourseId] = useState("1");
+  const [courseId, setCourseId] = useState(id!);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [lessonType, setLessonType] = useState<
@@ -49,42 +44,34 @@ export default function CreateLessonForm() {
     setMessage("");
     setError("");
 
-    try {
-      let result;
+    let lessonTypeExpectedOnServer = "";
 
-      switch (lessonType) {
-        case "video":
-          result = await createVideoLesson(
-            courseId,
-            title,
-            description,
-            videoUrl
-          );
-          setMessage("🎥 Lesson de vídeo criada com sucesso!");
-          break;
-        case "text":
-          result = await createTextLesson(
-            courseId,
-            title,
-            description,
-            filePath
-          );
-          setMessage("📝 Lesson de texto criada com sucesso!");
-          break;
-        case "question":
-          result = await createQuestionLesson(courseId, title, description, {
-            difficulty,
-            tags: tags.split(","),
-          });
-          setMessage("❓ Lesson de questão criada com sucesso!");
-          break;
-        case "module":
-          result = await createModule(courseId, title, description);
-          setMessage("📚 Módulo criado com sucesso!");
-          break;
-        default:
-          throw new Error("Tipo de lesson inválido");
-      }
+    switch (lessonType) {
+      case "video":
+        lessonTypeExpectedOnServer = "V";
+        break;
+      case "question":
+        lessonTypeExpectedOnServer = "Q";
+        break;
+      case "text":
+        lessonTypeExpectedOnServer = "T";
+        break;
+      case "module":
+        lessonTypeExpectedOnServer = "M";
+        break;
+
+      default:
+        break;
+    }
+
+    try {
+      const jwt = await getTokenFromCookies();
+      await createLesson(jwt!, courseId, {
+        title,
+        description,
+        lesson_type: lessonTypeExpectedOnServer,
+        order: 1,
+      });
 
       // Limpar formulário
       setTitle("");
@@ -93,9 +80,7 @@ export default function CreateLessonForm() {
       setFilePath("");
       setDuration("");
       setTags("");
-    } catch (error: any) {
-      setError(error.message || "Erro ao criar lesson");
-    }
+    } catch (error) {}
   };
 
   return (

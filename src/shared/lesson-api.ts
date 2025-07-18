@@ -2,23 +2,15 @@
 export interface CreateLessonRequest {
   title: string;
   description: string;
-  lesson_type: "V" | "T" | "Q" | "M"; // Video, Text, Question, Module
+  lesson_type: string; // Video, Text, Question, Module
   order: number;
-  file_path?: string;
-  quiz_data?: {
-    additionalProp1?: any;
-    additionalProp2?: any;
-    additionalProp3?: any;
-  };
-  parent_id?: number; // ID do módulo pai (se for uma lesson dentro de um módulo)
-  prerequisite_id?: number; // ID da lesson/módulo que precisa ser completado antes
 }
 
 export interface CreateLessonResponse {
   id: number;
   title: string;
   description: string;
-  lesson_type: "V" | "T" | "Q" | "M";
+  lesson_type: string;
   order: number;
   file_path?: string;
   quiz_data?: any;
@@ -35,30 +27,34 @@ export interface LessonApiError {
 }
 
 // Mapeamento entre tipos da API e tipos do frontend
-export const mapLessonTypeToApi = (type: string): "V" | "T" | "Q" | "M" => {
+export const mapLessonTypeToApi = (
+  type: string
+): "video" | "text" | "question" | "module" => {
   switch (type) {
     case "video":
-      return "V";
+      return "video";
     case "text":
-      return "T";
+      return "text";
     case "question":
-      return "Q";
+      return "question";
     case "module":
-      return "M";
+      return "module";
     default:
-      return "T";
+      return "text";
   }
 };
 
-export const mapLessonTypeFromApi = (type: "V" | "T" | "Q" | "M"): string => {
+export const mapLessonTypeFromApi = (
+  type: "video" | "text" | "question" | "module"
+): string => {
   switch (type) {
-    case "V":
+    case "video":
       return "video";
-    case "T":
+    case "text":
       return "text";
-    case "Q":
+    case "question":
       return "question";
-    case "M":
+    case "module":
       return "module";
     default:
       return "text";

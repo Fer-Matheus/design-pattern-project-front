@@ -2,8 +2,9 @@
 import { ProviderRequest } from "@/providers/axios-requests";
 import AxiosInstance from "@/providers/axios-instance";
 import { MyData, User, UserLogin, UserLoginResponse } from "@/shared/user";
-import { IncommingCourses } from "@/shared/course";
+import { CourseServer, FullCourse, IncommingCourses } from "@/shared/course";
 import { CreateCourseSchema } from "@/components/base/createCourse";
+import { CreateLessonRequest } from "@/shared/lesson-api";
 
 const authProvider = ProviderRequest(AxiosInstance({}).provider);
 
@@ -24,7 +25,9 @@ const login = async (username: string, password: string) => {
     );
 
     return response;
-  } catch (error) {}
+  } catch (error) {
+    throw error;
+  }
 };
 
 const register = async (user: User) => {
@@ -89,4 +92,97 @@ const createCourse = async (jwt: string, data: CreateCourseSchema) => {
   }
 };
 
-export { login, register, getUserData, getUserCourses, createCourse };
+const createLesson = async (
+  jwt: string,
+  courseId: string,
+  data: CreateLessonRequest
+) => {
+  console.log("Data", data);
+
+  try {
+    const response = await authProvider.post(
+      `/courses/${courseId}/lessons`,
+      {
+        title: data.title,
+        description: data.description,
+        lesson_type: data.lesson_type,
+        order: data.order,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+        },
+      }
+    );
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getAllCourses = async (jwt: string) => {
+  try {
+    const response = await authProvider.get<Paginate<CourseServer>>(
+      "/courses/",
+      {
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+        },
+      }
+    );
+    return response.items;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getCourseById = async (jwt: string, courseId: string) => {
+  try {
+    const response = await authProvider.get<FullCourse>(
+      `/courses/${courseId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+        },
+      }
+    );
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const buyCourse = async (
+  jwt: string,
+  courseId: string,
+  payment_type: string,
+  amount: number
+) => {
+  console.log("Payment_type: ", payment_type);
+  console.log("Amount: ", amount);
+
+  try {
+    const response = await authProvider.post(
+      `/payments/course/${courseId}`,
+      { payment_type, amount, },
+      {
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+        },
+      }
+    );
+  } catch (error) {
+    throw error;
+  }
+};
+
+export {
+  login,
+  register,
+  getUserData,
+  getUserCourses,
+  createCourse,
+  createLesson,
+  getAllCourses,
+  getCourseById,
+  buyCourse,
+};

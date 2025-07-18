@@ -3,8 +3,9 @@ import { IncommingCourses } from "@/shared/course";
 
 interface CoursesProps {
   courses: IncommingCourses[];
+  user_type: string;
 };
-export default function Courses({ courses }: CoursesProps) {
+export default function Courses({ courses, user_type }: CoursesProps) {
   console.log(courses);
 
   return (
@@ -16,6 +17,8 @@ export default function Courses({ courses }: CoursesProps) {
           title={courses.title}
           price={courses.price}
           studentsCount={courses.students_enrolled}
+          user_type={user_type}
+          source="H"
         />
       ))}
     </div>

@@ -1,4 +1,5 @@
 "use client";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,10 +9,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { login } from "@/service/auth";
+import { login, register } from "@/service/auth";
 import { setCookie } from "cookies-next";
+import { PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -34,8 +46,7 @@ export default function LoginForm() {
 
       router.push("/");
     } catch (error) {
-      alert("Usuário ou senha inválidos");
-      console.error("Login failed:", error);
+      alert("Login inválido: verifique suas credenciais")
     }
   };
 

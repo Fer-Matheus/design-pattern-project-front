@@ -1,10 +1,8 @@
+
 import { CreateCourse } from "@/components/base/createCourse";
 import Courses from "@/components/layout/data-table/myCourses";
-import { Button } from "@/components/ui/button";
 import { getTokenFromCookies } from "@/lib/getToken";
 import { getUserCourses, getUserData } from "@/service/auth";
-import { PlusIcon } from "lucide-react";
-import { MouseEventHandler } from "react";
 
 export default async function Home() {
   const jwt = await getTokenFromCookies();
@@ -31,7 +29,7 @@ export default async function Home() {
         <div>
           <h1 className="pt-10">Segue os cursos que você é professor</h1>
           <div className="w-full flex justify-center items-center">
-            <Courses courses={data.courses_teaching} />
+            <Courses courses={data.courses_teaching} user_type={data.user_type}/>
           </div>
         </div>
       ) : null}
@@ -40,7 +38,7 @@ export default async function Home() {
         <div>
           <h1 className="pt-10">Segue os cursos que você possui como aluno</h1>
           <div className="w-full flex justify-center items-center">
-            <Courses courses={myData?.items!} />
+            <Courses courses={myData?.items!} user_type={data.user_type}/>
           </div>
         </div>
       ) : null}

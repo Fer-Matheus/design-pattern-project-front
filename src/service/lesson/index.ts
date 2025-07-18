@@ -1,9 +1,6 @@
+import { getTokenFromCookies } from "@/lib/getToken";
 import AxiosInstance from "@/providers/axios-instance";
-import {
-  CreateLessonRequest,
-  CreateLessonResponse,
-  LessonApiError,
-} from "@/shared/lesson-api";
+import { CreateLessonRequest, CreateLessonResponse } from "@/shared/lesson-api";
 
 // Instância do axios
 const { provider: axiosInstance } = AxiosInstance({});
@@ -128,19 +125,27 @@ export class LessonService {
 
       const completeData: CreateLessonRequest = {
         ...lessonData,
-        order,
-        parent_id: parentId,
-        prerequisite_id: prerequisiteId || undefined,
-      };
+      order: 3};
 
-      const response = await axiosInstance.post<CreateLessonResponse>(
-        `/courses/${courseId}/lessons`,
-        completeData
-      );
-      return response.data;
+      const jwt = await getTokenFromCookies();
+
+      console.log("JWT: ", jwt)
+
+      console.log("course id: ", courseId)
+      const response = await axiosInstance.post<
+        CreateLessonRequest,
+        CreateLessonResponse
+      >(`/courses/${courseId}/lessons`, completeData, {
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+        },
+      });
+
+      console.log("depois da requisição")
+      return response;
     } catch (error: any) {
       const errorMessage =
-        error.response?.data?.message || "Erro ao criar lesson";
+        error.response?.data?.message || "Error ao criar lesson";
       throw new Error(errorMessage);
     }
   }
