@@ -10,8 +10,10 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Toast } from "@/components/ui/toast";
 import { login } from "@/service/auth";
 import { setCookie } from "cookies-next";
+import { CheckCircle, XCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -20,9 +22,27 @@ export default function LoginForm() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showToast, setShowToast] = useState(false);
+  const [toastType, setToastType] = useState<"success" | "error">("success");
+  const [toastMessage, setToastMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const showSuccessToast = (message: string) => {
+    setToastType("success");
+    setToastMessage(message);
+    setShowToast(true);
+  };
+
+  const showErrorToast = (message: string) => {
+    setToastType("error");
+    setToastMessage(message);
+    setShowToast(true);
+  };
 
   const onsubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsLoading(true);
+
     try {
       const response = await login(email, password);
 
@@ -30,11 +50,22 @@ export default function LoginForm() {
 
       if (response) {
         setCookie("access-token", response.access_token);
-      }
+        showSuccessToast("Login realizado com sucesso! Redirecionando...");
 
-      router.push("/");
-    } catch (error) {
-      alert("Login inválido: verifique suas credenciais");
+        // Aguardar um pouco para mostrar o toast antes de redirecionar
+        setTimeout(() => {
+          router.push("/");
+        }, 1500);
+      }
+    } catch (error: any) {
+      console.error("Erro no login:", error);
+      const errorMessage =
+        error?.response?.data?.detail ||
+        error?.message ||
+        "Login inválido: verifique suas credenciais";
+      showErrorToast(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -93,14 +124,29 @@ export default function LoginForm() {
             <CardFooter className="pt-6">
               <Button
                 type="submit"
-                className="w-full h-12 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+                disabled={isLoading}
+                className="w-full h-12 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl disabled:cursor-not-allowed"
               >
-                Entrar
+                {isLoading ? "Entrando..." : "Entrar"}
               </Button>
             </CardFooter>
           </form>
         </Card>
       </div>
+
+      {/* Toast de notificação */}
+      {showToast && (
+        <Toast variant={toastType} onClose={() => setShowToast(false)}>
+          <div className="flex items-center space-x-2">
+            {toastType === "success" ? (
+              <CheckCircle className="h-5 w-5 text-green-600" />
+            ) : (
+              <XCircle className="h-5 w-5 text-red-600" />
+            )}
+            <span className="font-medium">{toastMessage}</span>
+          </div>
+        </Toast>
+      )}
     </div>
   );
 }
