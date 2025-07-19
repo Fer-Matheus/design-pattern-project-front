@@ -18,10 +18,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Toast } from "@/components/ui/toast";
 import { register } from "@/service/auth";
+import { CheckCircle, XCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-export default function RegisterForm() {
+export default function RegisterForm({
+  onSuccessfulRegistration,
+}: {
+  onSuccessfulRegistration?: () => void;
+}) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,17 +35,41 @@ export default function RegisterForm() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [role, setRole] = useState("");
+  const [showToast, setShowToast] = useState(false);
+  const [toastType, setToastType] = useState<"success" | "error">("success");
+  const [toastMessage, setToastMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const showSuccessToast = (message: string) => {
+    setToastType("success");
+    setToastMessage(message);
+    setShowToast(true);
+  };
+
+  const showErrorToast = (message: string) => {
+    setToastType("error");
+    setToastMessage(message);
+    setShowToast(true);
+  };
 
   const registerOnSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsLoading(true);
+
+    // Validação básica
+    if (password !== confirmPassword) {
+      showErrorToast("As senhas não coincidem!");
+      setIsLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      showErrorToast("A senha deve ter pelo menos 6 caracteres!");
+      setIsLoading(false);
+      return;
+    }
 
     try {
-      console.log(email);
-      console.log(password);
-      console.log(firstName);
-      console.log(lastName);
-      console.log(role);
-
       await register({
         email: email,
         password: password,
@@ -50,9 +80,32 @@ export default function RegisterForm() {
         last_name: lastName,
         user_type: role,
       });
-      router.refresh();
-    } catch (error) {
+
+      showSuccessToast("Cadastro realizado com sucesso! Redirecionando...");
+
+      // Limpar formulário
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
+      setFirstName("");
+      setLastName("");
+      setRole("");
+
+      // Aguardar um pouco para mostrar o toast antes de redirecionar para o login
+      setTimeout(() => {
+        setShowToast(false);
+        // Usar o callback para mudar para a aba de login
+        onSuccessfulRegistration?.();
+      }, 2000);
+    } catch (error: any) {
       console.error("Erro no cadastro:", error);
+      const errorMessage =
+        error?.response?.data?.detail ||
+        error?.message ||
+        "Erro interno do servidor. Tente novamente.";
+      showErrorToast(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -187,14 +240,29 @@ export default function RegisterForm() {
             <CardFooter className="pt-6">
               <Button
                 type="submit"
-                className="w-full h-12 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+                disabled={isLoading}
+                className="w-full h-12 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl disabled:cursor-not-allowed"
               >
-                Cadastrar
+                {isLoading ? "Cadastrando..." : "Cadastrar"}
               </Button>
             </CardFooter>
           </form>
         </Card>
       </div>
+
+      {/* Toast de notificação */}
+      {showToast && (
+        <Toast variant={toastType} onClose={() => setShowToast(false)}>
+          <div className="flex items-center space-x-2">
+            {toastType === "success" ? (
+              <CheckCircle className="h-5 w-5 text-green-600" />
+            ) : (
+              <XCircle className="h-5 w-5 text-red-600" />
+            )}
+            <span className="font-medium">{toastMessage}</span>
+          </div>
+        </Toast>
+      )}
     </div>
   );
 }

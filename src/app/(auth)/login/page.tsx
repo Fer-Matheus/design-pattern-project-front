@@ -1,4 +1,6 @@
+"use client";
 import Image from "next/image";
+import { useState } from "react";
 
 import GirlRaising from "@/../public/girl-raising.png";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -6,6 +8,12 @@ import LoginForm from "@/components/pages/login/login-form";
 import RegisterForm from "@/components/pages/register/register-form";
 
 export default function Login() {
+  const [activeTab, setActiveTab] = useState("Login");
+
+  const handleSuccessfulRegistration = () => {
+    setActiveTab("Login");
+  };
+
   return (
     <div className="w-screen h-screen bg-gray-170 flex justify-center items-center overflow-hidden">
       <div className="w-4/7 h-full flex justify-center items-center">
@@ -17,7 +25,11 @@ export default function Login() {
             <h1 className="typing">Learnify</h1>
           </div>
           <div className="flex-1 min-h-0">
-            <Tabs defaultValue="Login" className="h-full">
+            <Tabs
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="h-full"
+            >
               <TabsList className="mb-4">
                 <TabsTrigger value="Login">Login</TabsTrigger>
                 <TabsTrigger value="Register">Cadastre-se</TabsTrigger>
@@ -26,7 +38,9 @@ export default function Login() {
                 <LoginForm />
               </TabsContent>
               <TabsContent value="Register" className="h-full mt-0">
-                <RegisterForm />
+                <RegisterForm
+                  onSuccessfulRegistration={handleSuccessfulRegistration}
+                />
               </TabsContent>
             </Tabs>
           </div>
