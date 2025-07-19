@@ -1,5 +1,4 @@
 "use client";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -9,21 +8,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { login, register } from "@/service/auth";
+import { login } from "@/service/auth";
 import { setCookie } from "cookies-next";
-import { PlusIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -46,48 +34,73 @@ export default function LoginForm() {
 
       router.push("/");
     } catch (error) {
-      alert("Login inválido: verifique suas credenciais")
+      alert("Login inválido: verifique suas credenciais");
     }
   };
 
   return (
-    <form
-      className="flex w-full h-[30rem] rounded-xl forms-bg justify-center items-center p-5 pl-10 pr-10"
-      onSubmit={onsubmit}
-    >
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle>Login</CardTitle>
-          <CardDescription>
-            Entre e desfrute dos seus cursos favoritos.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-6 ">
-          <div className="grid gap-3">
-            <Label htmlFor="tabs-demo-name">Usuário</Label>
-            <Input
-              id="tabs-demo-name"
-              type="text"
-              placeholder="Coloque seu usuário aqui"
-              value={email}
-              onChange={(value) => setEmail(value.currentTarget.value)}
-            />
-          </div>
-          <div className="grid gap-3">
-            <Label htmlFor="tabs-demo-username">Senha</Label>
-            <Input
-              type="password"
-              id="tabs-demo-username"
-              placeholder="Coloque sua senha aqui"
-              value={password}
-              onChange={(value) => setPassword(value.currentTarget.value)}
-            />
-          </div>
-        </CardContent>
-        <CardFooter>
-          <Button type="submit">Login</Button>
-        </CardFooter>
-      </Card>
-    </form>
+    <div className="w-full h-full flex items-center justify-start p-4 pl-0">
+      <div className="w-full max-w-lg rounded-xl forms-bg p-6 shadow-2xl">
+        <Card className="bg-white border-0 shadow-xl">
+          <CardHeader className="text-center pb-4">
+            <CardTitle className="text-2xl font-bold text-gray-900">
+              Login
+            </CardTitle>
+            <CardDescription className="text-gray-600 mt-2">
+              Entre e desfrute dos seus cursos favoritos.
+            </CardDescription>
+          </CardHeader>
+
+          <form onSubmit={onsubmit}>
+            <CardContent className="space-y-5">
+              <div className="space-y-2">
+                <Label
+                  htmlFor="email"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Email
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="seu@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="h-11 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label
+                  htmlFor="password"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Senha
+                </Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Digite sua senha"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="h-11 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                  required
+                />
+              </div>
+            </CardContent>
+
+            <CardFooter className="pt-6">
+              <Button
+                type="submit"
+                className="w-full h-12 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+              >
+                Entrar
+              </Button>
+            </CardFooter>
+          </form>
+        </Card>
+      </div>
+    </div>
   );
 }

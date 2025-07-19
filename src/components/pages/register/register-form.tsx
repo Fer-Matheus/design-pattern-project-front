@@ -31,15 +31,15 @@ export default function RegisterForm() {
   const [role, setRole] = useState("");
 
   const registerOnSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    
-    try {
+    e.preventDefault();
 
-      console.log(email)
-      console.log(password)
-      console.log(firstName)
-      console.log(lastName)
-      console.log(role)
-      
+    try {
+      console.log(email);
+      console.log(password);
+      console.log(firstName);
+      console.log(lastName);
+      console.log(role);
+
       await register({
         email: email,
         password: password,
@@ -48,101 +48,153 @@ export default function RegisterForm() {
         is_verified: true,
         first_name: firstName,
         last_name: lastName,
-        user_type: role
-      })
+        user_type: role,
+      });
       router.refresh();
     } catch (error) {
+      console.error("Erro no cadastro:", error);
     }
   };
 
   return (
-    <form
-      className="flex w-full h-[45rem] rounded-xl forms-bg justify-center items-center p-5 pl-10 pr-10"
-      onSubmit={registerOnSubmit}
-    >
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle>Cadastro</CardTitle>
-          <CardDescription>
-            Crie sua conta para começar a usar a plataforma.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-6">
-          <div className="grid gap-3">
-            <Label htmlFor="tabs-demo-current">Seu primeiro nome</Label>
-            <Input
-              id="tabs-demo-current"
-              type="text"
-              placeholder="Coloque seu primeiro nome"
-              value={firstName}
-              onChange={(value) => setFirstName(value.currentTarget.value)}
-            />
-          </div>
-          <div className="grid gap-3">
-            <Label htmlFor="tabs-demo-current">Seu último nome</Label>
-            <Input
-              id="tabs-demo-current"
-              type="text"
-              placeholder="Coloque seu último nome "
-              value={lastName}
-              onChange={(value) => setLastName(value.currentTarget.value)}
-            />
-          </div>
-          <div className="grid gap-3">
-            <Label htmlFor="tabs-demo-current">Email</Label>
-            <Input
-              id="tabs-demo-current"
-              type="text"
-              placeholder="Coloque seu email aqui"
-              value={email}
-              onChange={(value) => setEmail(value.currentTarget.value)}
-            />
-          </div>
-          <div className="grid gap-3">
-            <Label htmlFor="tabs-demo-new">Senha</Label>
-            <Input
-              id="tabs-demo-new"
-              type="password"
-              placeholder="Coloque sua senha aqui"
-              value={password}
-              onChange={(value) => setPassword(value.currentTarget.value)}
-            />
-          </div>
-          <div className="grid gap-3">
-            <Label htmlFor="tabs-demo-new">Confirmar Senha</Label>
-            <Input
-              id="tabs-demo-new"
-              type="password"
-              placeholder="Confirme sua senha aqui"
-              value={confirmPassword}
-              onChange={(value) =>
-                setConfirmPassword(value.currentTarget.value)
-              }
-            />
-          </div>
-          <div className="grid gap-3">
-            <Label htmlFor="tabs-demo-new">Tipo de usuário</Label>
-            <Select value={role} onValueChange={setRole}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione seu estado" />
-              </SelectTrigger>
-              <SelectContent className="max-h-72 max-w-10 text-loginLabel">
-                <SelectGroup>
-                  <SelectItem key="Aluno" value="S">
-                    Aluno
-                  </SelectItem>
-                  <SelectItem key="Professor" value="I">
-                    Professor
-                  </SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-        <CardFooter>
-          <Button type="submit">Cadastre-se</Button>
-        </CardFooter>
-      </Card>
-    </form>
+    <div className="w-full h-full flex items-center justify-start p-4 pl-0">
+      <div className="w-full max-w-lg rounded-xl forms-bg p-6 shadow-2xl overflow-y-auto max-h-[calc(100vh-12rem)]">
+        <Card className="bg-white border-0 shadow-xl">
+          <CardHeader className="text-center pb-4">
+            <CardTitle className="text-2xl font-bold text-gray-900">
+              Cadastro
+            </CardTitle>
+            <CardDescription className="text-gray-600 mt-2">
+              Crie sua conta para começar a usar a plataforma.
+            </CardDescription>
+          </CardHeader>
+
+          <form onSubmit={registerOnSubmit}>
+            <CardContent className="space-y-5">
+              {/* Nome completo em grid responsivo */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="firstName"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Primeiro nome
+                  </Label>
+                  <Input
+                    id="firstName"
+                    type="text"
+                    placeholder="Seu primeiro nome"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="h-11 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="lastName"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Sobrenome
+                  </Label>
+                  <Input
+                    id="lastName"
+                    type="text"
+                    placeholder="Seu sobrenome"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="h-11 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label
+                  htmlFor="email"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Email
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="seu@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="h-11 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label
+                  htmlFor="password"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Senha
+                </Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Digite sua senha"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="h-11 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label
+                  htmlFor="confirmPassword"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Confirmar senha
+                </Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  placeholder="Confirme sua senha"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="h-11 border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label
+                  htmlFor="userType"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Tipo de usuário
+                </Label>
+                <Select value={role} onValueChange={setRole} required>
+                  <SelectTrigger className="h-11 border-gray-300 focus:border-purple-500 focus:ring-purple-500">
+                    <SelectValue placeholder="Selecione seu tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="S">👨‍🎓 Aluno</SelectItem>
+                      <SelectItem value="I">👨‍🏫 Professor</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+
+            <CardFooter className="pt-6">
+              <Button
+                type="submit"
+                className="w-full h-12 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+              >
+                Cadastrar
+              </Button>
+            </CardFooter>
+          </form>
+        </Card>
+      </div>
+    </div>
   );
 }
