@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLesson } from "@/components/hooks/useLesson";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,12 +16,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, CheckCircle, Upload, Video, BookOpen } from "lucide-react";
-import { createLesson } from "@/service/auth";
+import { createLesson, getLessons } from "@/service/auth";
 import { getTokenFromCookies } from "@/lib/getToken";
+import { CreateLessonRequest } from "@/shared/lesson-api";
 
-export default function CreateLessonForm() {
-  const { loading } = useLesson();
-  const id = localStorage.getItem("courseId");
+export function CreateLessonForm() {
+  const id =
+    typeof window !== "undefined" ? localStorage.getItem("courseId") : null;
 
   const [courseId, setCourseId] = useState(id!);
   const [title, setTitle] = useState("");
@@ -38,11 +39,67 @@ export default function CreateLessonForm() {
   const [tags, setTags] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // Estados para estatísticas
+  const [lessonStats, setLessonStats] = useState({
+    video: 0,
+    text: 0,
+    question: 0,
+    module: 0,
+  });
+  const [statsLoading, setStatsLoading] = useState(true);
+
+  // Função para buscar lições e calcular estatísticas
+  const fetchLessonStats = async () => {
+    if (!courseId) return;
+
+    try {
+      setStatsLoading(true);
+      const token = await getTokenFromCookies();
+      if (!token) {
+        setError("Token de autenticação não encontrado");
+        return;
+      }
+
+      const response = await getLessons(token, courseId.toString());
+
+      if (response && Array.isArray(response)) {
+        const stats = response.reduce(
+          (acc, lesson) => {
+            // Mapear os tipos da API para os tipos locais
+            let lessonType = lesson.lesson_type;
+            if (lessonType === "V") lessonType = "video";
+            else if (lessonType === "T") lessonType = "text";
+            else if (lessonType === "Q") lessonType = "question";
+            else if (lessonType === "M") lessonType = "module";
+
+            if (lessonType && acc.hasOwnProperty(lessonType)) {
+              acc[lessonType as keyof typeof acc]++;
+            }
+            return acc;
+          },
+          { video: 0, text: 0, question: 0, module: 0 }
+        );
+        setLessonStats(stats);
+      }
+    } catch (error) {
+      console.error("Erro ao buscar estatísticas das lições:", error);
+    } finally {
+      setStatsLoading(false);
+    }
+  };
+
+  // Buscar estatísticas quando o componente montar ou courseId mudar
+  useEffect(() => {
+    fetchLessonStats();
+  }, [courseId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage("");
     setError("");
+    setLoading(true);
 
     let lessonTypeExpectedOnServer = "";
 
@@ -80,7 +137,16 @@ export default function CreateLessonForm() {
       setFilePath("");
       setDuration("");
       setTags("");
-    } catch (error) {}
+
+      setMessage("Lesson criada com sucesso!");
+
+      // Recarregar estatísticas após criar a lição
+      await fetchLessonStats();
+    } catch (error) {
+      setError("Erro ao criar lesson. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -97,29 +163,37 @@ export default function CreateLessonForm() {
         <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200">
           <CardContent className="p-4 text-center">
             <Video className="h-8 w-8 mx-auto mb-2 text-blue-600" />
-            <p className="text-sm font-medium text-blue-800">Vídeo Lessons</p>
-            <p className="text-2xl font-bold text-blue-900">0</p>
+            <p className="text-sm font-medium text-blue-700">Vídeos</p>
+            <p className="text-2xl font-bold text-blue-800">
+              {statsLoading ? "..." : lessonStats.video}
+            </p>
           </CardContent>
         </Card>
         <Card className="bg-gradient-to-r from-green-50 to-green-100 border-green-200">
           <CardContent className="p-4 text-center">
-            <BookOpen className="h-8 w-8 mx-auto mb-2 text-green-600" />
-            <p className="text-sm font-medium text-green-800">Módulos</p>
-            <p className="text-2xl font-bold text-green-900">0</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200">
-          <CardContent className="p-4 text-center">
-            <Upload className="h-8 w-8 mx-auto mb-2 text-purple-600" />
-            <p className="text-sm font-medium text-purple-800">Arquivos</p>
-            <p className="text-2xl font-bold text-purple-900">0</p>
+            <Upload className="h-8 w-8 mx-auto mb-2 text-green-600" />
+            <p className="text-sm font-medium text-green-700">Textos</p>
+            <p className="text-2xl font-bold text-green-800">
+              {statsLoading ? "..." : lessonStats.text}
+            </p>
           </CardContent>
         </Card>
         <Card className="bg-gradient-to-r from-orange-50 to-orange-100 border-orange-200">
           <CardContent className="p-4 text-center">
             <CheckCircle className="h-8 w-8 mx-auto mb-2 text-orange-600" />
-            <p className="text-sm font-medium text-orange-800">Questões</p>
-            <p className="text-2xl font-bold text-orange-900">0</p>
+            <p className="text-sm font-medium text-orange-700">Questões</p>
+            <p className="text-2xl font-bold text-orange-800">
+              {statsLoading ? "..." : lessonStats.question}
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200">
+          <CardContent className="p-4 text-center">
+            <BookOpen className="h-8 w-8 mx-auto mb-2 text-purple-600" />
+            <p className="text-sm font-medium text-purple-700">Módulos</p>
+            <p className="text-2xl font-bold text-purple-800">
+              {statsLoading ? "..." : lessonStats.module}
+            </p>
           </CardContent>
         </Card>
       </div>

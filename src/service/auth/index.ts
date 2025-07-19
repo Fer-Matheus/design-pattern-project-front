@@ -6,6 +6,13 @@ import { CourseServer, FullCourse, IncommingCourses } from "@/shared/course";
 import { CreateCourseSchema } from "@/components/base/createCourse";
 import { CreateLessonRequest } from "@/shared/lesson-api";
 
+interface Paginate<T> {
+  page: number;
+  per_page: number;
+  total: number;
+  items: T[];
+}
+
 const authProvider = ProviderRequest(AxiosInstance({}).provider);
 
 const login = async (username: string, password: string) => {
@@ -163,13 +170,26 @@ const buyCourse = async (
   try {
     const response = await authProvider.post(
       `/payments/course/${courseId}`,
-      { payment_type, amount, },
+      { payment_type, amount },
       {
         headers: {
           Authorization: `Bearer ${jwt}`,
         },
       }
     );
+  } catch (error) {
+    throw error;
+  }
+};
+
+const getLessons = async (jwt: string, courseId: string) => {
+  try {
+    const response = await authProvider.get(`/courses/${courseId}/lessons`, {
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+      },
+    });
+    return response;
   } catch (error) {
     throw error;
   }
@@ -182,6 +202,7 @@ export {
   getUserCourses,
   createCourse,
   createLesson,
+  getLessons,
   getAllCourses,
   getCourseById,
   buyCourse,
