@@ -75,7 +75,10 @@ const getUserCourses = async (jwt: string) => {
     );
 
     return response;
-  } catch (error) {}
+  } catch (error) {
+    console.error("Erro ao buscar cursos do usuário:", error);
+    throw error;
+  }
 };
 
 const createCourse = async (jwt: string, data: CreateCourseSchema) => {
@@ -164,9 +167,6 @@ const buyCourse = async (
   payment_type: string,
   amount: number
 ) => {
-  console.log("Payment_type: ", payment_type);
-  console.log("Amount: ", amount);
-
   try {
     const response = await authProvider.post(
       `/payments/course/${courseId}`,
@@ -174,10 +174,14 @@ const buyCourse = async (
       {
         headers: {
           Authorization: `Bearer ${jwt}`,
+          "Content-Type": "application/json",
         },
       }
     );
+
+    return response;
   } catch (error) {
+    console.error("Erro na API de pagamento:", error);
     throw error;
   }
 };
