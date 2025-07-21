@@ -184,11 +184,14 @@ const buyCourse = async (
 
 const getLessons = async (jwt: string, courseId: string) => {
   try {
-    const response = await authProvider.get(`/courses/${courseId}/lessons`, {
-      headers: {
-        Authorization: `Bearer ${jwt}`,
-      },
-    });
+    const response = await authProvider.get<FullCourse>(
+      `/courses/${courseId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+        },
+      }
+    );
     return response;
   } catch (error) {
     throw error;
