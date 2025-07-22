@@ -199,6 +199,39 @@ const getLessons = async (jwt: string, courseId: string) => {
   }
 };
 
+const sendMessage = async (jwt: string, content: string, courseId: number) => {
+  try {
+    const response = await authProvider.post(
+      "/messages/",
+      { content, course_id: courseId },
+      {
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response;
+  } catch (error) {
+    console.error("Erro ao enviar mensagem:", error);
+    throw error;
+  }
+};
+
+const getMessages = async (jwt: string, courseId: string) => {
+  try {
+    const response = await authProvider.get(`/messages/course/${courseId}`, {
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    console.error("Erro ao buscar mensagens:", error);
+    throw error;
+  }
+};
+
 export {
   login,
   register,
@@ -210,4 +243,6 @@ export {
   getAllCourses,
   getCourseById,
   buyCourse,
+  sendMessage,
+  getMessages,
 };
