@@ -4,15 +4,15 @@ import { Button } from "../ui/button";
 import ImageLogo from "./imageLogo";
 import { useRouter } from "next/navigation";
 import { setCookie } from "cookies-next";
+import { clearUserDataCache } from "@/hooks/use-cached-user-data";
 
 const NavbarComponent = () => {
   const router = useRouter();
 
   const userLogout = async () => {
     try {
-
       setCookie("access-token", "");
-
+      clearUserDataCache(); // Limpar cache ao fazer logout
       router.push("/login");
     } catch (error) {}
   };

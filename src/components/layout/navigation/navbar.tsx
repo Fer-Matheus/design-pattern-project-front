@@ -7,6 +7,7 @@ import ImageLogo from "@/components/base/imageLogo";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { setCookie } from "cookies-next";
+import { clearUserDataCache } from "@/hooks/use-cached-user-data";
 
 interface NavbarComponentProps {
   session?: Session | null;
@@ -18,7 +19,7 @@ const NavbarComponent = ({ session }: NavbarComponentProps) => {
   const userLogout = async () => {
     try {
       setCookie("access-token", "");
-
+      clearUserDataCache(); // Limpar cache ao fazer logout
       router.push("/login");
     } catch (error) {}
   };
