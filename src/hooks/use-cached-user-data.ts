@@ -67,7 +67,7 @@ export function useCachedUserData(): UseCachedUserDataReturn {
 
         // Buscar dados do usuário se não temos em cache ou se está desatualizado
         if (!cachedUserData || now - lastCacheTime >= CACHE_DURATION) {
-          const userDataResponse = await getUserData(token);
+          const userDataResponse = await getUserData();
           if (userDataResponse?.id) {
             cachedUserData = userDataResponse;
             setUserData(userDataResponse);
@@ -86,7 +86,7 @@ export function useCachedUserData(): UseCachedUserDataReturn {
 
             if (userRole === "aluno") {
               try {
-                const userCoursesResponse = await getUserCourses(token);
+                const userCoursesResponse = await getUserCourses();
                 if (userCoursesResponse?.items) {
                   courses = userCoursesResponse.items.map((course) => ({
                     id: course.id,

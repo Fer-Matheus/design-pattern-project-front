@@ -44,7 +44,7 @@ export default function ChatWidget({
 
       if (!token) return;
 
-      const response = await getMessages(token, courseId.toString());
+      const response = await getMessages(courseId.toString());
       if (response && Array.isArray(response)) {
         setMessages(response);
       }
@@ -66,7 +66,7 @@ export default function ChatWidget({
 
       if (!token) return;
 
-      await sendMessage(token, newMessage, selectedCourse);
+      await sendMessage(newMessage, selectedCourse);
       setNewMessage("");
 
       // Recarrega as mensagens

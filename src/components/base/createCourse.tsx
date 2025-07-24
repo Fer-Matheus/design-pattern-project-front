@@ -65,7 +65,7 @@ export function CreateCourse() {
     const jwt = await getTokenFromCookies();
 
     try {
-      await createCourse(jwt!, data);
+      await createCourse(data);
 
       // Mostrar toast de sucesso
       showSuccessToast("Curso criado com sucesso!");

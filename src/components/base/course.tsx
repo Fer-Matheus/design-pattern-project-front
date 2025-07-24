@@ -39,16 +39,15 @@ export default function Course({
   const router = useRouter();
 
   // Determinar se é um curso adquirido pelo aluno
-  const isOwnedByStudent = userCourses || ( source && user_type !== "I");
+  const isOwnedByStudent = userCourses || (source === "H" && user_type !== "I");
 
   return (
     <Card
       key={id}
-      className={`hover:shadow-lg transition-all duration-300 ${
-        isOwnedByStudent
-          ? "border-2 border-green-200 bg-gradient-to-br from-green-50 to-blue-50"
-          : "hover:shadow-lg transition-shadow"
-      }`}
+      className={`hover:shadow-lg transition-all duration-300 ${isOwnedByStudent
+        ? "border-2 border-green-200 bg-gradient-to-br from-green-50 to-blue-50"
+        : "hover:shadow-lg transition-shadow"
+        }`}
     >
       <CardHeader>
         <div className="flex justify-between items-start">
@@ -78,10 +77,12 @@ export default function Course({
         )}
 
         <div className="flex items-center space-x-4 text-sm text-gray-500 mb-4">
-          <div className="flex items-center">
-            <Users className="w-4 h-4 mr-1" />
-            <span>{studentsCount || 0}</span>
-          </div>
+          {studentsCount ? (
+            <div className="flex items-center">
+              <Users className="w-4 h-4 mr-1" />
+              <span>{studentsCount || 0}</span>
+            </div>
+          ) : null}
           {isOwnedByStudent && (
             <div className="flex items-center text-green-600">
               <PlayCircle className="w-4 h-4 mr-1" />
@@ -94,9 +95,8 @@ export default function Course({
           <div className="flex justify-between items-center mb-3">
             <div>
               <span
-                className={`text-lg font-bold ${
-                  isOwnedByStudent ? "text-green-600" : "text-green-600"
-                }`}
+                className={`text-lg font-bold ${isOwnedByStudent ? "text-green-600" : "text-green-600"
+                  }`}
               >
                 {formatCurrency(price)}
               </span>
@@ -124,16 +124,15 @@ export default function Course({
             </Button>
           ) : (
             <Button
-              className={`w-full ${
-                isOwnedByStudent
-                  ? "bg-green-600 hover:bg-green-700 text-white"
-                  : ""
-              }`}
+              className={`w-full ${isOwnedByStudent
+                ? "bg-green-600 hover:bg-green-700 text-white"
+                : ""
+                }`}
               onClick={() => {
                 localStorage.setItem("courseId", id.toString());
 
                 if (user_type === "S") {
-                  router.push("/course/1");
+                  router.push(`/course/${id}`);
                 } else {
                   router.push("/create-lesson");
                 }
