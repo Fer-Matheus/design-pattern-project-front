@@ -69,6 +69,12 @@ const paymentMethods: PaymentMethod[] = [
     type: "pix",
     icon: "📱",
   },
+  {
+    id: "boleto",
+    name: "Boleto",
+    type: "debit",
+    icon: "🧾",
+  },
 ];
 
 export default function CheckoutPageContent() {
@@ -123,7 +129,7 @@ export default function CheckoutPageContent() {
           return;
         }
 
-        const course = await getCourseById(jwt, courseId);
+        const course = await getCourseById(courseId);
 
         if (course) {
           const convertedCourse = convertFullCourseToTheme(course);

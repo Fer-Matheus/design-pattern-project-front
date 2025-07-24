@@ -18,7 +18,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import {
   Loader2,
@@ -85,7 +84,7 @@ export function CreateLessonForm() {
         return;
       }
 
-      const response = await getLessons(token, courseId.toString());
+      const response = await getLessons(courseId.toString());
 
       setCourse(response);
 
@@ -154,14 +153,10 @@ export function CreateLessonForm() {
     console.log("Current order: ", currentOrder);
 
     try {
-      const jwt = await getTokenFromCookies();
-      await createLesson(jwt!, courseId, {
+      await createLesson(courseId, {
         title,
         description,
         lesson_type: lessonTypeExpectedOnServer,
-        order: currentOrder,
-        prerequisite_id: order,
-        parent_id: Number.parseInt(lessonId) ?? 0,
       });
 
       // Limpar formulário

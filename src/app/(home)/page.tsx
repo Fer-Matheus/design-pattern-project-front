@@ -7,9 +7,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { BookOpen, Clock } from "lucide-react";
 
 export default async function Home() {
-  const jwt = await getTokenFromCookies();
 
-  const data = await getUserData(jwt!);
+  const data = await getUserData();
 
   const role = data?.user_type == "S" ? "aluno" : "professor";
 
@@ -17,10 +16,9 @@ export default async function Home() {
 
   if (role === "aluno") {
     try {
-      myData = await getUserCourses(jwt!);
+      myData = await getUserCourses();
     } catch (error) {
       console.error("Erro ao carregar cursos do aluno:", error);
-      // Continua a execução mesmo com erro
     }
   }
 
@@ -89,8 +87,8 @@ export default async function Home() {
                 Você tem {myData.items.length}{" "}
                 {myData.items.length === 1
                   ? "curso disponível"
-                  : "cursos disponíveis"}
-                para continuar aprendendo. Clique em "Acessar" para retomar onde
+                  : "cursos disponíveis"}{" "}
+                 para continuar aprendendo. Clique em "Acessar" para retomar onde
                 parou!
               </p>
             </div>
@@ -99,8 +97,6 @@ export default async function Home() {
           {/* Exibição dos Cursos */}
           {myData?.items && myData.items.length > 0 ? (
             <div className="space-y-6">
-              {/* Componente de Progresso dos Cursos */}
-              <CourseProgress courses={myData.items} />
 
               {/* Grid de Cursos */}
               <Courses courses={myData.items} user_type={data.user_type} />

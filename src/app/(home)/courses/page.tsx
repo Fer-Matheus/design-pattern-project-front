@@ -1,17 +1,19 @@
 import { CartProvider } from "@/providers/cart-provider";
-import { getAllCourses, getUserData } from "@/service/auth";
-import { getTokenFromCookies } from "@/lib/getToken";
+import { getAllCourses, getUserCourses, getUserData } from "@/service/auth";
 import Course from "@/components/base/course";
-import CoursesDemo from "@/components/pages/courses-demo";
 
 export default async function CoursesPage() {
-  const jwt = await getTokenFromCookies();
 
-  const userData = await getUserData(jwt!);
+  const userData = await getUserData();
+
+  const userCourses = await getUserCourses();
 
   console.log("Dados do usuario: ", userData);
 
-  const allCourses = await getAllCourses(jwt!);
+  const allCourses = await getAllCourses();
+
+  console.log(allCourses)
+  console.log(userCourses.items)
 
   return (
     <div>
@@ -25,6 +27,7 @@ export default async function CoursesPage() {
               price={course.price}
               title={course.title}
               user_type={userData.user_type}
+              userCourses={ userCourses.items.includes(course) }
               source="CP"
             />
           ))}

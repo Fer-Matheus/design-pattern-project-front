@@ -5,6 +5,8 @@ import { MyData, User, UserLogin, UserLoginResponse } from "@/shared/user";
 import { CourseServer, FullCourse, IncommingCourses } from "@/shared/course";
 import { CreateCourseSchema } from "@/components/base/createCourse";
 import { CreateLessonRequest } from "@/shared/lesson-api";
+import { getTokenFromCookies } from "@/lib/getToken";
+import { CourseContent } from "@/shared/lesson";
 
 interface Paginate<T> {
   page: number;
@@ -13,7 +15,9 @@ interface Paginate<T> {
   items: T[];
 }
 
-const authProvider = ProviderRequest(AxiosInstance({}).provider);
+const authProvider = ProviderRequest(
+  AxiosInstance({ getToken: getTokenFromCookies }).provider
+);
 
 const login = async (username: string, password: string) => {
   try {
@@ -49,30 +53,19 @@ const register = async (user: User) => {
   }
 };
 
-const getUserData = async (jwt: string) => {
+const getUserData = async () => {
   try {
-    const response = await authProvider.get<MyData>("/my-data/me", {
-      headers: {
-        Authorization: `Bearer ${jwt}`,
-      },
-      withCredentials: true,
-    });
+    const response = await authProvider.get<MyData>("/my-data/me", {});
     return response;
   } catch (error) {
     throw error;
   }
 };
 
-const getUserCourses = async (jwt: string) => {
+const getUserCourses = async () => {
   try {
-    const response = await authProvider.get<Paginate<IncommingCourses>>(
-      "/users/my-courses",
-      {
-        headers: {
-          Authorization: `Bearer ${jwt}`,
-        },
-      }
-    );
+    const response =
+      await authProvider.get<Paginate<IncommingCourses>>("/users/my-courses");
 
     return response;
   } catch (error) {
@@ -81,80 +74,57 @@ const getUserCourses = async (jwt: string) => {
   }
 };
 
-const createCourse = async (jwt: string, data: CreateCourseSchema) => {
+const createCourse = async (data: CreateCourseSchema) => {
   try {
-    const response = await authProvider.post(
-      "/courses/",
-      {
-        title: data.title,
-        description: data.description,
-        price: data.price,
-        is_active: true,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${jwt}`,
-        },
-      }
-    );
+    const response = await authProvider.post("/courses/", {
+      title: data.title,
+      description: data.description,
+      price: data.price,
+      is_active: true,
+    });
   } catch (error) {
     throw error;
   }
 };
 
-const createLesson = async (
-  jwt: string,
-  courseId: string,
-  data: CreateLessonRequest
-) => {
+const createLesson = async (courseId: string, data: CreateLessonRequest) => {
   console.log("Data", data);
 
   try {
-    const response = await authProvider.post(
-      `/courses/${courseId}/lessons`,
-      {
-        title: data.title,
-        description: data.description,
-        lesson_type: data.lesson_type,
-        order: data.order,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${jwt}`,
-        },
-      }
-    );
+    const response = await authProvider.post(`/courses/${courseId}/lessons`, {
+      title: data.title,
+      description: data.description,
+      lesson_type: data.lesson_type,
+      order: data.order,
+    });
   } catch (error) {
     throw error;
   }
 };
 
-const getAllCourses = async (jwt: string) => {
+const getAllCourses = async () => {
   try {
-    const response = await authProvider.get<Paginate<CourseServer>>(
-      "/courses/",
-      {
-        headers: {
-          Authorization: `Bearer ${jwt}`,
-        },
-      }
-    );
+    const response =
+      await authProvider.get<Paginate<IncommingCourses>>("/courses/");
     return response.items;
   } catch (error) {
     throw error;
   }
 };
 
-const getCourseById = async (jwt: string, courseId: string) => {
+const getCourseContentById = async (courseId: string) => {
   try {
-    const response = await authProvider.get<FullCourse>(
-      `/courses/${courseId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${jwt}`,
-        },
-      }
+    const response = await authProvider.get<CourseContent>(
+      `/courses/${courseId}`
     );
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+const getCourseById = async (courseId: string) => {
+  try {
+    const response = await authProvider.get<FullCourse>(`/courses/${courseId}`);
     return response;
   } catch (error) {
     throw error;
@@ -186,34 +156,21 @@ const buyCourse = async (
   }
 };
 
-const getLessons = async (jwt: string, courseId: string) => {
+const getLessons = async (courseId: string) => {
   try {
-    const response = await authProvider.get<FullCourse>(
-      `/courses/${courseId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${jwt}`,
-        },
-      }
-    );
+    const response = await authProvider.get<FullCourse>(`/courses/${courseId}`);
     return response;
   } catch (error) {
     throw error;
   }
 };
 
-const sendMessage = async (jwt: string, content: string, courseId: number) => {
+const sendMessage = async (content: string, courseId: number) => {
   try {
-    const response = await authProvider.post(
-      "/messages/",
-      { content, course_id: courseId },
-      {
-        headers: {
-          Authorization: `Bearer ${jwt}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const response = await authProvider.post("/messages/", {
+      content,
+      course_id: courseId,
+    });
     return response;
   } catch (error) {
     console.error("Erro ao enviar mensagem:", error);
@@ -221,13 +178,9 @@ const sendMessage = async (jwt: string, content: string, courseId: number) => {
   }
 };
 
-const getMessages = async (jwt: string, courseId: string) => {
+const getMessages = async (courseId: string) => {
   try {
-    const response = await authProvider.get(`/messages/course/${courseId}`, {
-      headers: {
-        Authorization: `Bearer ${jwt}`,
-      },
-    });
+    const response = await authProvider.get(`/messages/course/${courseId}`, {});
     return response;
   } catch (error) {
     console.error("Erro ao buscar mensagens:", error);
@@ -248,4 +201,5 @@ export {
   buyCourse,
   sendMessage,
   getMessages,
+  getCourseContentById,
 };

@@ -5,23 +5,22 @@ import { useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import {
   BookOpen,
   Play,
-  Clock,
   User,
   Users,
-  DollarSign,
   FileText,
   CheckCircle,
 } from "lucide-react";
 import { CourseContent, Lesson } from "@/shared/lesson";
-import { mockCourseContent } from "@/data/mock-course-content";
+import { getCourseContentById } from "@/service/auth";
 
 export default function CourseViewPage() {
   const params = useParams();
-  const [courseContent, setCourseContent] = useState<CourseContent | null>(null);
+  const [courseContent, setCourseContent] = useState<CourseContent | null>(
+    null
+  );
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -30,12 +29,17 @@ export default function CourseViewPage() {
     const loadCourse = async () => {
       setIsLoading(true);
       // Simular delay da API
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setCourseContent(mockCourseContent);
-      
+
+      const courseId = params.id as string;
+
+      console.log("Course id: ", courseId);
+
+      const response = await getCourseContentById(courseId);
+      setCourseContent(response);
+
       // Selecionar a primeira lesson automaticamente
-      if (mockCourseContent.lessons.length > 0) {
-        setSelectedLesson(mockCourseContent.lessons[0]);
+      if (response.lessons.length > 0) {
+        setSelectedLesson(response.lessons[0]);
       }
       setIsLoading(false);
     };
@@ -45,11 +49,11 @@ export default function CourseViewPage() {
 
   const getLessonIcon = (lessonType: string) => {
     switch (lessonType) {
-      case "video":
+      case "V":
         return <Play className="h-4 w-4" />;
-      case "text":
+      case "T":
         return <FileText className="h-4 w-4" />;
-      case "exercise":
+      case "Q":
         return <CheckCircle className="h-4 w-4" />;
       default:
         return <BookOpen className="h-4 w-4" />;
@@ -58,11 +62,11 @@ export default function CourseViewPage() {
 
   const getLessonTypeColor = (lessonType: string) => {
     switch (lessonType) {
-      case "video":
+      case "V":
         return "bg-blue-100 text-blue-800";
-      case "text":
+      case "T":
         return "bg-green-100 text-green-800";
-      case "exercise":
+      case "Q":
         return "bg-purple-100 text-purple-800";
       default:
         return "bg-gray-100 text-gray-800";
@@ -70,15 +74,20 @@ export default function CourseViewPage() {
   };
 
   // Organizar lessons por hierarquia (parent_id)
-  const organizedLessons = courseContent?.lessons.reduce((acc, lesson) => {
-    if (lesson.parent_id === 0) {
-      acc.push({
-        ...lesson,
-        children: courseContent.lessons.filter(l => l.parent_id === lesson.id)
-      });
-    }
-    return acc;
-  }, [] as (Lesson & { children: Lesson[] })[]);
+  const organizedLessons = courseContent?.lessons.reduce(
+    (acc, lesson) => {
+      if (lesson.parent_id === 0) {
+        acc.push({
+          ...lesson,
+          children: courseContent.lessons.filter(
+            (l) => l.parent_id === lesson.id
+          ),
+        });
+      }
+      return acc;
+    },
+    [] as (Lesson & { children: Lesson[] })[]
+  );
 
   if (isLoading) {
     return (
@@ -95,8 +104,12 @@ export default function CourseViewPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Curso não encontrado</h1>
-          <p className="text-gray-600">O curso solicitado não existe ou foi removido.</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            Curso não encontrado
+          </h1>
+          <p className="text-gray-600">
+            O curso solicitado não existe ou foi removido.
+          </p>
         </div>
       </div>
     );
@@ -110,18 +123,24 @@ export default function CourseViewPage() {
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-4">
-                <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                <Badge
+                  variant="secondary"
+                  className="bg-blue-100 text-blue-800"
+                >
                   {courseContent.is_active ? "Ativo" : "Inativo"}
                 </Badge>
-                <Badge variant="outline" className="text-green-600 border-green-200">
+                <Badge
+                  variant="outline"
+                  className="text-green-600 border-green-200"
+                >
                   R$ {courseContent.price.toFixed(2)}
                 </Badge>
               </div>
-              
+
               <h1 className="text-3xl font-bold text-gray-900 mb-4">
                 {courseContent.title}
               </h1>
-              
+
               <p className="text-gray-600 text-lg leading-relaxed mb-6">
                 {courseContent.description}
               </p>
@@ -141,12 +160,6 @@ export default function CourseViewPage() {
                 </div>
               </div>
             </div>
-
-            <div className="flex-shrink-0">
-              <Button size="lg" className="w-full lg:w-auto">
-                Começar Curso
-              </Button>
-            </div>
           </div>
         </div>
 
@@ -160,18 +173,22 @@ export default function CourseViewPage() {
                   Conteúdo do Curso
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-0">
+              <CardContent className="p-0 h-[21.7rem] overflow-y-scroll">
                 <div className="space-y-1">
-                  {organizedLessons?.map((lesson, index) => (
+                  {courseContent.lessons.map((lesson) => (
                     <div key={lesson.id}>
                       <button
                         onClick={() => setSelectedLesson(lesson)}
                         className={`w-full p-4 text-left hover:bg-gray-50 border-b transition-colors ${
-                          selectedLesson?.id === lesson.id ? "bg-blue-50 border-l-4 border-l-blue-500" : ""
+                          selectedLesson?.id === lesson.id
+                            ? "bg-blue-50 border-l-4 border-l-blue-500"
+                            : ""
                         }`}
                       >
                         <div className="flex items-center gap-3">
-                          <div className={`p-2 rounded-full ${getLessonTypeColor(lesson.lesson_type)}`}>
+                          <div
+                            className={`p-2 rounded-full ${getLessonTypeColor(lesson.lesson_type)}`}
+                          >
                             {getLessonIcon(lesson.lesson_type)}
                           </div>
                           <div className="flex-1">
@@ -182,43 +199,9 @@ export default function CourseViewPage() {
                               {lesson.lesson_type}
                             </p>
                           </div>
-                          <span className="text-xs text-gray-400">
-                            {index + 1}
-                          </span>
+                          <span className="text-xs text-gray-400"></span>
                         </div>
                       </button>
-
-                      {/* Sub-lessons */}
-                      {lesson.children.length > 0 && (
-                        <div className="bg-gray-50">
-                          {lesson.children.map((subLesson, subIndex) => (
-                            <button
-                              key={subLesson.id}
-                              onClick={() => setSelectedLesson(subLesson)}
-                              className={`w-full p-3 pl-12 text-left hover:bg-gray-100 border-b transition-colors ${
-                                selectedLesson?.id === subLesson.id ? "bg-blue-50 border-l-4 border-l-blue-500" : ""
-                              }`}
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className={`p-1.5 rounded ${getLessonTypeColor(subLesson.lesson_type)}`}>
-                                  {getLessonIcon(subLesson.lesson_type)}
-                                </div>
-                                <div className="flex-1">
-                                  <h5 className="font-medium text-gray-800 text-sm">
-                                    {subLesson.title}
-                                  </h5>
-                                  <p className="text-xs text-gray-500 capitalize">
-                                    {subLesson.lesson_type}
-                                  </p>
-                                </div>
-                                <span className="text-xs text-gray-400">
-                                  {index + 1}.{subIndex + 1}
-                                </span>
-                              </div>
-                            </button>
-                          ))}
-                        </div>
-                      )}
                     </div>
                   ))}
                 </div>
@@ -238,73 +221,80 @@ export default function CourseViewPage() {
                         {selectedLesson.title}
                       </CardTitle>
                       <div className="flex items-center gap-2 mt-2">
-                        <Badge variant="outline" className={getLessonTypeColor(selectedLesson.lesson_type)}>
+                        <Badge
+                          variant="outline"
+                          className={getLessonTypeColor(
+                            selectedLesson.lesson_type
+                          )}
+                        >
                           {selectedLesson.lesson_type}
                         </Badge>
                         <span className="text-sm text-gray-500">
-                          Aula {selectedLesson.order}
+                          Aula {selectedLesson.id}
                         </span>
                       </div>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-6">
+                  <div className="space-y-6 h-[20rem]">
                     {/* Área de conteúdo da aula */}
-                    <div className="bg-gray-100 rounded-lg p-8 text-center">
-                      <div className="mb-4">
-                        {getLessonIcon(selectedLesson.lesson_type)}
+                    <div className="bg-gray-100 flex items-center justify-center rounded-lg p-8 w-full h-full ">
+                      <div className="text-center">
+                        <div className="flex items-center gap-1">
+                          <div className="mb-4">
+                          {getLessonIcon(selectedLesson.lesson_type)}
+                        </div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                          {selectedLesson.title}
+                        </h3>
+                        </div>
+                        <p className="text-gray-600">
+                          Conteúdo da aula tipo:{" "}
+                          <span className="font-medium capitalize">
+                            {selectedLesson.lesson_type}
+                          </span>
+                        </p>
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                        {selectedLesson.title}
-                      </h3>
-                      <p className="text-gray-600">
-                        Conteúdo da aula tipo: <span className="font-medium capitalize">{selectedLesson.lesson_type}</span>
-                      </p>
-                      
+
                       {selectedLesson.lesson_type === "video" && (
                         <div className="mt-6">
                           <div className="bg-black rounded-lg aspect-video flex items-center justify-center">
                             <Play className="h-12 w-12 text-white" />
                           </div>
-                          <p className="text-sm text-gray-500 mt-2">Player de vídeo seria carregado aqui</p>
+                          <p className="text-sm text-gray-500 mt-2">
+                            Player de vídeo seria carregado aqui
+                          </p>
                         </div>
                       )}
 
                       {selectedLesson.lesson_type === "text" && (
                         <div className="mt-6 p-6 bg-white rounded-lg border text-left">
-                          <h4 className="font-semibold mb-3">Conteúdo de Texto</h4>
+                          <h4 className="font-semibold mb-3">
+                            Conteúdo de Texto
+                          </h4>
                           <p className="text-gray-600 leading-relaxed">
-                            Este seria o conteúdo textual da aula. Aqui você poderia ter artigos, 
-                            explicações detalhadas, códigos de exemplo e muito mais.
+                            Este seria o conteúdo textual da aula. Aqui você
+                            poderia ter artigos, explicações detalhadas, códigos
+                            de exemplo e muito mais.
                           </p>
                         </div>
                       )}
 
                       {selectedLesson.lesson_type === "exercise" && (
                         <div className="mt-6 p-6 bg-white rounded-lg border text-left">
-                          <h4 className="font-semibold mb-3">Exercício Prático</h4>
+                          <h4 className="font-semibold mb-3">
+                            Exercício Prático
+                          </h4>
                           <p className="text-gray-600 mb-4">
-                            Complete o exercício a seguir para consolidar seu aprendizado.
+                            Complete o exercício a seguir para consolidar seu
+                            aprendizado.
                           </p>
                           <Button variant="outline" className="w-full">
                             Iniciar Exercício
                           </Button>
                         </div>
                       )}
-                    </div>
-
-                    {/* Navegação entre aulas */}
-                    <div className="flex justify-between items-center pt-4 border-t">
-                      <Button variant="outline" size="sm">
-                        ← Aula Anterior
-                      </Button>
-                      <span className="text-sm text-gray-500">
-                        Aula {selectedLesson.order} de {courseContent.lessons.length}
-                      </span>
-                      <Button variant="outline" size="sm">
-                        Próxima Aula →
-                      </Button>
                     </div>
                   </div>
                 </CardContent>

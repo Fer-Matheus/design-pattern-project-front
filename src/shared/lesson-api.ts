@@ -3,7 +3,7 @@ export interface CreateLessonRequest {
   title: string;
   description: string;
   lesson_type: string; // Video, Text, Question, Module
-  order: number;
+  order?: number;
   parent_id?: number;
   prerequisite_id?: number;
 }

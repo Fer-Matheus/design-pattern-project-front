@@ -11,6 +11,7 @@ import {
 } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { useRouter } from "next/navigation";
+import { IncommingCourses } from "@/shared/course";
 
 interface CourseProps {
   user_type?: string;
@@ -21,6 +22,7 @@ interface CourseProps {
   studentsCount?: number;
   price: number;
   source: string;
+  userCourses?: boolean;
 }
 
 export default function Course({
@@ -32,11 +34,12 @@ export default function Course({
   price,
   user_type,
   source,
+  userCourses
 }: CourseProps) {
   const router = useRouter();
 
   // Determinar se é um curso adquirido pelo aluno
-  const isOwnedByStudent = source === "H" && user_type === "S";
+  const isOwnedByStudent = userCourses || ( source && user_type !== "I");
 
   return (
     <Card
