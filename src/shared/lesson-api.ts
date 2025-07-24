@@ -4,6 +4,8 @@ export interface CreateLessonRequest {
   description: string;
   lesson_type: string; // Video, Text, Question, Module
   order: number;
+  parent_id?: number;
+  prerequisite_id?: number;
 }
 
 export interface CreateLessonResponse {
