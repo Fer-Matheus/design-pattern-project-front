@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useChat } from "@/providers/chat-provider";
 import { useCachedUserData } from "@/hooks/use-cached-user-data";
 
@@ -8,10 +8,21 @@ export default function ChatAutoInitializer() {
   const { updateUserCourses, setCurrentUserId, userCourses, currentUserId } =
     useChat();
   const { userData, userCourses: cachedCourses, loading } = useCachedUserData();
+  const [isClient, setIsClient] = useState(false);
+
+  // Garante que só executa no cliente
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
-    // Se está carregando ou já temos todos os dados, não fazer nada
-    if (loading || (currentUserId && userCourses.length > 0)) {
+    // Só executar no cliente e quando não estiver carregando
+    if (!isClient || loading) {
+      return;
+    }
+
+    // Se já temos todos os dados, não fazer nada
+    if (currentUserId && userCourses.length > 0) {
       return;
     }
 
@@ -24,6 +35,7 @@ export default function ChatAutoInitializer() {
       updateUserCourses(cachedCourses);
     }
   }, [
+    isClient,
     userData,
     cachedCourses,
     loading,
@@ -32,6 +44,11 @@ export default function ChatAutoInitializer() {
     userCourses.length,
     currentUserId,
   ]);
+
+  // Não renderizar nada durante SSR
+  if (!isClient) {
+    return null;
+  }
 
   return null;
 }

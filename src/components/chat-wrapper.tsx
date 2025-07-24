@@ -8,11 +8,21 @@ import ChatAutoInitializer from "./chat-auto-initializer";
 export default function ChatWrapper() {
   const { userCourses, currentUserId } = useChat();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const checkTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Garante que só executa no cliente
   useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient) return;
+
     // Verificar se há token nos cookies (usuário logado)
     const checkLoginStatus = () => {
+      if (typeof document === "undefined") return;
+
       const token = document.cookie
         .split("; ")
         .find((row) => row.startsWith("access-token="))
@@ -32,6 +42,9 @@ export default function ChatWrapper() {
     // Verificar inicialmente
     debouncedCheck();
 
+    // Verificar inicialmente
+    checkLoginStatus();
+
     // Verificar periodicamente (30 segundos)
     const interval = setInterval(checkLoginStatus, 30000);
 
@@ -41,10 +54,10 @@ export default function ChatWrapper() {
         clearTimeout(checkTimeoutRef.current);
       }
     };
-  }, []);
+  }, [isClient]);
 
-  // Só renderiza o chat se o usuário estiver logado
-  if (!isLoggedIn) {
+  // Não renderizar nada durante SSR ou se não estiver logado
+  if (!isClient || !isLoggedIn) {
     return null;
   }
 

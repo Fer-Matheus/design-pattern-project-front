@@ -19,10 +19,16 @@ export function useCachedUserData(): UseCachedUserDataReturn {
   const [userData, setUserData] = useState<MyData | null>(cachedUserData);
   const [userCourses, setUserCourses] =
     useState<Array<{ id: number; title: string }>>(cachedUserCourses);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Só executar no cliente
+    if (typeof window === "undefined") {
+      setLoading(false);
+      return;
+    }
+
     const loadData = async () => {
       const now = Date.now();
 
@@ -34,10 +40,16 @@ export function useCachedUserData(): UseCachedUserDataReturn {
       ) {
         setUserData(cachedUserData);
         setUserCourses(cachedUserCourses);
+        setLoading(false);
         return;
       }
 
-      // Verificar se há token
+      // Verificar se há token (apenas no cliente)
+      if (typeof document === "undefined") {
+        setLoading(false);
+        return;
+      }
+
       const token = document.cookie
         .split("; ")
         .find((row) => row.startsWith("access-token="))
@@ -45,6 +57,7 @@ export function useCachedUserData(): UseCachedUserDataReturn {
 
       if (!token) {
         setError("Token não encontrado");
+        setLoading(false);
         return;
       }
 
